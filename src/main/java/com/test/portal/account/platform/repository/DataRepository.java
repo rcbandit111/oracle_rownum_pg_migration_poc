@@ -13,14 +13,14 @@ public interface DataRepository extends CrudRepository<PayPalStandaloneCredit, L
 
 
   // Original Oracle query
-  @Query("SELECT credit FROM PayPalStandaloneCredit credit WHERE credit.status = :status "
-      + "AND credit.paymentHandle IS NOT NULL AND credit.transactionDate BETWEEN :startDate AND :endDate "
-      + "AND ROWNUM <= :count")
+  @Query(value = "SELECT credit FROM PayPalStandaloneCredit credit WHERE credit.status = :status "
+          + "AND credit.paymentHandle IS NOT NULL AND credit.transactionDate BETWEEN :startDate AND :endDate "
+          + "AND LIMIT :count ", nativeQuery = true)
   List<PayPalStandaloneCredit> findTopCreditsByStatusAndPaymentHandleNotNull(@Param("status") Status status,
-    @Param("startDate") OffsetDateTime start, @Param("endDate") OffsetDateTime end, @Param("count") long count);
+                                                                             @Param("startDate") OffsetDateTime start, @Param("endDate") OffsetDateTime end, @Param("count") long count);
 
   // PostgreSQL
-  @Query("SELECT credit FROM PayPalStandaloneCredit credit WHERE credit.status = :status "
+/*  @Query("SELECT credit FROM PayPalStandaloneCredit credit WHERE credit.status = :status "
           + "AND credit.paymentHandle IS NOT NULL AND credit.transactionDate BETWEEN :startDate AND :endDate "
           + "AND credit.transactionDate = (SELECT MAX(sub.credit.transactionDate) FROM PayPalStandaloneCredit sub "
           + "WHERE sub.status = :status AND sub.paymentHandle IS NOT NULL "
@@ -28,6 +28,5 @@ public interface DataRepository extends CrudRepository<PayPalStandaloneCredit, L
           + "GROUP BY sub.id ORDER BY MAX(sub.transactionDate) DESC) "
           + "ORDER BY credit.transactionDate DESC")
   List<PayPalStandaloneCredit> findTopPostgress(@Param("status") Status status,
-    @Param("startDate") OffsetDateTime start, @Param("endDate") OffsetDateTime end, @Param("count") long count);
-
+    @Param("startDate") OffsetDateTime start, @Param("endDate") OffsetDateTime end);*/
 }
