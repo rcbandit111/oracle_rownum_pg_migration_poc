@@ -30,4 +30,12 @@ public interface DataRepository extends CrudRepository<PayPalStandaloneCredit, L
   List<PayPalStandaloneCredit> findTopPostgress(@Param("status") Status status,
     @Param("startDate") OffsetDateTime start, @Param("endDate") OffsetDateTime end, @Param("count") long count);
 
+    // PostgreSQL
+    @Query("SELECT credit FROM PayPalStandaloneCredit credit " +
+           "WHERE credit.status = :status " +
+           "AND credit.paymentHandle IS NOT NULL " +
+           "AND credit.transactionDate BETWEEN :startDate AND :endDate")
+  List<PayPalStandaloneCredit> findCreditsByStatusAndDateAndLimit(@Param("status") Status status,
+    @Param("startDate") OffsetDateTime start, @Param("endDate") OffsetDateTime end);
+
 }
