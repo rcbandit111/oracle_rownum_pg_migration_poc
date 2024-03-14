@@ -16,9 +16,16 @@ public class DataProcess {
 
   private DataRepository creditRepository;
 
+  private PostGDataRepository pcreditRepository;
+
   @Autowired
   public DataProcess(DataRepository creditRepository) {
     this.creditRepository = creditRepository;
+  }
+
+  @Autowired
+  public DataProcess(PostGDataRepository pcreditRepository) {
+    this.pcreditRepository = pcreditRepository;
   }
 
   private void queryOracle() {
@@ -31,12 +38,27 @@ public class DataProcess {
 
   }
 
-  private void queryPostgress() {
+  private List<PayPalStandaloneCredit> queryPostgress() {
 
     OffsetDateTime startDate = OffsetDateTime.now().minusMinutes(batchSize);
     OffsetDateTime endDate = OffsetDateTime.now();
 
     List<PayPalStandaloneCredit> creditList = creditRepository
-            .findTopCreditsByStatusAndPaymentHandleNotNull(Status.RECEIVED, startDate, endDate, batchSize);
+            .findCreditsByStatusAndDateAndLimit(Status.RECEIVED, startDate, endDate);
+
+      // Apply limit programmatically
+    if (creditList.size() > batchSize) {
+      creditList = creditList.subList(0, batchSize);
+    }   
+    return  creditList; 
+  }
+
+   private void postGqueryPostgress() {
+
+    OffsetDateTime startDate = OffsetDateTime.now().minusMinutes(batchSize);
+    OffsetDateTime endDate = OffsetDateTime.now();
+
+    List<PayPalStandaloneCredit> creditList = pcreditRepository
+            .findCreditByStatusAndDateAndLimit(Status.RECEIVED, startDate, endDate, batchSize);
   }
 }
