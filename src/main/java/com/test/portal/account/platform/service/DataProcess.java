@@ -39,4 +39,22 @@ public class DataProcess {
     List<PayPalStandaloneCredit> creditList = creditRepository
             .findTopCreditsByStatusAndPaymentHandleNotNull(Status.RECEIVED, startDate, endDate, batchSize);
   }
+  /*
+  This is one Approach...
+  Apply limit programmatically
+  */
+   private List<PayPalStandaloneCredit> queryPostgress() {
+
+    OffsetDateTime startDate = OffsetDateTime.now().minusMinutes(batchSize);
+    OffsetDateTime endDate = OffsetDateTime.now();
+
+    List<PayPalStandaloneCredit> creditList = creditRepository
+            .findCreditsByStatusAndDateAndLimit(Status.RECEIVED, startDate, endDate);
+
+      // Apply limit programmatically
+    if (creditList.size() > batchSize) {
+      creditList = creditList.subList(0, batchSize);
+    }   
+    return  creditList; 
+  }
 }
